@@ -21,4 +21,5 @@ export interface AppState {
     desktop: boolean;
   };
   rotated: boolean; // Global rotation state
+  highContrast: boolean; // Accessibility: high contrast mode
 }
