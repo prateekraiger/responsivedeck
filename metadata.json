@@ -1,0 +1,5 @@
+{
+  "name": "ResponsiveDeck",
+  "description": "A professional Chrome Extension dashboard for simultaneous multi-device responsive testing.",
+  "requestFramePermissions": []
+}
