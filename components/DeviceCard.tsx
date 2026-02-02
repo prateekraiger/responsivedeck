@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { DeviceConfig } from '../types';
+import { X } from 'lucide-react';
 
 interface DeviceCardProps {
   device: DeviceConfig;
@@ -8,6 +9,9 @@ interface DeviceCardProps {
   showFrame: boolean;
   rotated: boolean;
   reloadTrigger: number;
+  highContrast: boolean;
+  isCustom?: boolean;
+  onRemove?: () => void;
 }
 
 export const DeviceCard: React.FC<DeviceCardProps> = ({
@@ -16,7 +20,10 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
   scale,
   showFrame,
   rotated,
-  reloadTrigger
+  reloadTrigger,
+  highContrast,
+  isCustom = false,
+  onRemove
 }) => {
   const [iframeKey, setIframeKey] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -29,71 +36,147 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
   const width = rotated ? device.height : device.width;
   const height = rotated ? device.width : device.height;
 
-  // Frame styles based on device category
+  // Frame styles based on device category with high contrast support
   const getFrameStyles = () => {
-    if (!showFrame) return 'border border-gray-700 shadow-sm hover:shadow-blue-500/20 hover:border-blue-500/50 transition-all duration-300';
+    if (!showFrame) {
+      return `border ${
+        highContrast ? 'border-white/40' : 'border-gray-700'
+      } shadow-sm hover:shadow-blue-500/20 hover:border-blue-500/50 transition-all duration-300`;
+    }
     
     // Base styles with transition and shadow
-    const base = "bg-gray-800 shadow-2xl relative transition-all duration-500 ease-in-out hover:shadow-[0_30px_60px_-10px_rgba(0,0,0,0.6)]";
+    const base = `relative transition-all duration-500 ease-in-out ${
+      highContrast 
+        ? 'bg-black shadow-[0_20px_50px_rgba(255,255,255,0.1)]' 
+        : 'bg-gray-900 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)]'
+    }`;
     
     if (device.category === 'mobile') {
-      // Mobile: Rounded corners, thick bezel
-      return `${base} rounded-[2.5rem] border-[8px] border-gray-800 p-2 ring-1 ring-gray-700 hover:border-gray-700 hover:bg-gray-700 hover:ring-gray-500`;
+      // Mobile: Rounded corners, thick bezel with notch
+      return `${base} rounded-[2.5rem] p-3 ring-2 ${
+        highContrast 
+          ? 'border-[10px] border-white/20 ring-white/30 hover:border-white/40 hover:ring-white/50' 
+          : 'border-[10px] border-gray-800 ring-gray-700/50 hover:border-gray-700 hover:bg-gray-800 hover:ring-blue-500/30'
+      }`;
     }
     if (device.category === 'tablet') {
-      // Tablet: Slightly less rounded, thicker bezel
-      return `${base} rounded-[1.5rem] border-[12px] border-gray-800 p-2 ring-1 ring-gray-700 hover:border-gray-700 hover:bg-gray-700 hover:ring-gray-500`;
+      // Tablet: Slightly less rounded, medium bezel
+      return `${base} rounded-[2rem] p-3 ring-2 ${
+        highContrast 
+          ? 'border-[14px] border-white/20 ring-white/30 hover:border-white/40 hover:ring-white/50' 
+          : 'border-[14px] border-gray-800 ring-gray-700/50 hover:border-gray-700 hover:bg-gray-800 hover:ring-blue-500/30'
+      }`;
     }
-    // Desktop: Top bar bezel, thin side borders
-    return `${base} rounded-lg border-t-[24px] border-x-[1px] border-b-[1px] border-gray-700 pt-0 hover:border-gray-600`;
+    // Desktop: Top bar bezel with control dots
+    return `${base} rounded-xl pt-0 ${
+      highContrast 
+        ? 'border-t-[28px] border-x-[2px] border-b-[2px] border-white/30 hover:border-white/50' 
+        : 'border-t-[28px] border-x-[2px] border-b-[2px] border-gray-700 hover:border-gray-600'
+    }`;
   };
 
   return (
     <div 
-      className="flex flex-col items-center justify-start m-4 transition-all duration-300 group"
+      className="flex flex-col items-center justify-start m-4 transition-all duration-300 group relative"
       style={{
-        // We scale the container to occupy less space visually if zoomed out
-        width: showFrame ? (width * scale) + 40 : width * scale,
-        height: showFrame ? (height * scale) + 80 : (height * scale) + 40,
+        width: showFrame ? (width * scale) + 60 : width * scale,
+        height: showFrame ? (height * scale) + 100 : (height * scale) + 50,
       }}
     >
-      <div className="mb-2 flex items-center gap-2 text-gray-400 text-sm font-medium transition-colors group-hover:text-blue-400">
+      {/* Device Name Label */}
+      <div className={`mb-3 flex items-center gap-3 text-sm font-semibold transition-colors ${
+        highContrast 
+          ? 'text-white group-hover:text-white' 
+          : 'text-gray-400 group-hover:text-blue-400'
+      }`}>
         <span>{device.name}</span>
-        <span className="text-gray-600 text-xs group-hover:text-blue-400/70">
-          {width}x{height}
+        <span className={`text-xs font-normal ${
+          highContrast 
+            ? 'text-white/60 group-hover:text-white/80' 
+            : 'text-gray-600 group-hover:text-blue-400/70'
+        }`}>
+          {width}×{height}
         </span>
+        {isCustom && onRemove && (
+          <button
+            onClick={onRemove}
+            className={`p-1 rounded-full transition-all hover:scale-110 ${
+              highContrast
+                ? 'bg-white/20 text-white hover:bg-white/30'
+                : 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+            }`}
+            title="Remove Custom Device"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
       </div>
 
       <div 
         className={getFrameStyles()}
         style={{
-          // The visual container scaling
           transform: `scale(${scale})`,
           transformOrigin: 'top center',
-          width: showFrame ? width + (device.category === 'mobile' ? 24 : 16) : width,
-          height: showFrame ? height + (device.category === 'mobile' ? 24 : 16) : height,
+          width: showFrame ? width + (device.category === 'tablet' ? 28 : device.category === 'mobile' ? 26 : 4) : width,
+          height: showFrame ? height + (device.category === 'tablet' ? 28 : device.category === 'mobile' ? 26 : 4) : height,
         }}
       >
-        {/* Camera notch simulation for mobile/tablet if frames on */}
+        {/* Dynamic Island / Notch for mobile/tablet */}
         {showFrame && device.category !== 'desktop' && (
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 h-4 w-1/3 bg-gray-900 rounded-b-xl z-10 pointer-events-none transition-colors duration-500 group-hover:bg-black" />
+          <div className={`absolute left-1/2 transform -translate-x-1/2 z-20 pointer-events-none transition-colors duration-500 ${
+            device.category === 'mobile' 
+              ? 'top-1 h-6 w-32 rounded-full' 
+              : 'top-2 h-5 w-28 rounded-full'
+          } ${
+            highContrast 
+              ? 'bg-white/80 group-hover:bg-white' 
+              : 'bg-black/90 group-hover:bg-black'
+          }`}>
+            {/* Camera dot */}
+            <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full ${
+              highContrast ? 'bg-black/50' : 'bg-gray-700'
+            }`}></div>
+          </div>
         )}
         
-        {/* Desktop Controls decoration */}
+        {/* Desktop window controls */}
         {showFrame && device.category === 'desktop' && (
-          <div className="absolute top-[-18px] left-2 flex gap-1.5 z-10 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm"></div>
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-sm"></div>
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm"></div>
+          <div className="absolute top-[-20px] left-4 flex gap-2 z-10 opacity-80 group-hover:opacity-100 transition-all duration-300">
+            <div className={`w-3 h-3 rounded-full shadow-lg transition-transform hover:scale-125 ${
+              highContrast ? 'bg-white/70' : 'bg-red-500'
+            }`}></div>
+            <div className={`w-3 h-3 rounded-full shadow-lg transition-transform hover:scale-125 ${
+              highContrast ? 'bg-white/70' : 'bg-yellow-500'
+            }`}></div>
+            <div className={`w-3 h-3 rounded-full shadow-lg transition-transform hover:scale-125 ${
+              highContrast ? 'bg-white/70' : 'bg-green-500'
+            }`}></div>
           </div>
         )}
 
+        {/* Home button for mobile (some devices) */}
+        {showFrame && device.category === 'mobile' && device.id.includes('iphone-se') && (
+          <div className={`absolute bottom-2 left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full border-2 z-10 ${
+            highContrast 
+              ? 'border-white/30 group-hover:border-white/50' 
+              : 'border-gray-700 group-hover:border-gray-600'
+          }`}></div>
+        )}
+
         <div 
-          className="bg-white overflow-hidden relative transition-shadow duration-300 group-hover:shadow-inner"
+          className={`overflow-hidden relative transition-shadow duration-300 ${
+            highContrast 
+              ? 'bg-white shadow-inner' 
+              : 'bg-white group-hover:shadow-inner'
+          }`}
           style={{
              width: width,
              height: height,
-             borderRadius: showFrame ? (device.category === 'mobile' ? '2rem' : '0.5rem') : '0',
+             borderRadius: showFrame ? (
+               device.category === 'mobile' ? '1.75rem' : 
+               device.category === 'tablet' ? '1rem' : 
+               '0.5rem'
+             ) : '0',
           }}
         >
            {url ? (
@@ -109,8 +192,12 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-50 text-gray-400">
-              <span className="text-sm">Enter URL to preview</span>
+            <div className={`w-full h-full flex items-center justify-center text-sm ${
+              highContrast 
+                ? 'bg-black text-white' 
+                : 'bg-gray-50 text-gray-400'
+            }`}>
+              <span>Enter URL to preview</span>
             </div>
           )}
         </div>
