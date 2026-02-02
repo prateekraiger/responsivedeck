@@ -117,7 +117,7 @@ const App: React.FC = () => {
   const visibleDevices = DEVICES.filter(d => state.visibleCategories[d.category]);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col font-sans selection:bg-blue-500/30">
+    <div className="relative min-h-screen bg-gray-950 text-white flex flex-col font-sans selection:bg-blue-500/30">
       <Toolbar
         state={state}
         onUrlChange={handleUrlChange}
@@ -129,7 +129,7 @@ const App: React.FC = () => {
         onReload={handleReload}
       />
 
-      <main className="flex-1 mt-16 p-8 overflow-auto scroll-smooth">
+      <main className="flex-1 mt-20 p-8 w-full">
         <div className="flex flex-wrap items-start justify-center gap-12 pb-20">
           {state.activeUrl ? (
             visibleDevices.map(device => (

@@ -50,7 +50,7 @@ export const DEVICES: DeviceConfig[] = [
     category: 'mobile',
     pixelRatio: 3,
   },
-  
+
   // Tablet
   {
     id: 'ipad-mini',
@@ -87,6 +87,30 @@ export const DEVICES: DeviceConfig[] = [
 
   // Desktop/Laptop
   {
+    id: 'laptop-hd',
+    name: 'Laptop HD',
+    width: 1366,
+    height: 768,
+    category: 'desktop',
+    pixelRatio: 1,
+  },
+  {
+    id: 'desktop-standard',
+    name: 'Standard Desktop',
+    width: 1536,
+    height: 864,
+    category: 'desktop',
+    pixelRatio: 1,
+  },
+  {
+    id: 'imac-24',
+    name: 'iMac 24"',
+    width: 2240, // Scaled logical resolution
+    height: 1260,
+    category: 'desktop',
+    pixelRatio: 2,
+  },
+  {
     id: 'macbook-air',
     name: 'MacBook Air',
     width: 1280,
@@ -110,4 +134,21 @@ export const DEVICES: DeviceConfig[] = [
     category: 'desktop',
     pixelRatio: 1,
   },
+  {
+    id: 'macbook-pro-14',
+    name: 'MacBook Pro 14"',
+    width: 1512,
+    height: 982,
+    category: 'desktop',
+    pixelRatio: 2,
+  },
+  {
+    id: 'macbook-pro-16',
+    name: 'MacBook Pro 16"',
+    width: 1728,
+    height: 1117,
+    category: 'desktop',
+    pixelRatio: 2,
+  },
+
 ];
