@@ -6,7 +6,7 @@ import { AppState } from './types';
 import { AlertTriangle } from 'lucide-react';
 
 const INITIAL_STATE: AppState = {
-  url: 'https://www.google.com',
+  url: 'http://localhost:5173',
   activeUrl: '',
   scale: 0.75, // Default scale to fit most screens
   showFrames: true,
