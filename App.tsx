@@ -3,6 +3,7 @@ import { Toolbar } from './components/Toolbar';
 import { DeviceCard } from './components/DeviceCard';
 import { DEVICES } from './constants';
 import { AppState } from './types';
+import { AlertTriangle } from 'lucide-react';
 
 const INITIAL_STATE: AppState = {
   url: 'https://www.google.com',
@@ -61,7 +62,7 @@ const App: React.FC = () => {
 
   const handleUrlChange = (inputUrl: string) => {
     let formattedUrl = inputUrl;
-    
+
     // Smart Protocol Handling
     if (inputUrl && !inputUrl.match(/^[a-zA-Z]+:\/\//)) {
       // If it looks like localhost or an IP, default to http
@@ -72,15 +73,15 @@ const App: React.FC = () => {
         formattedUrl = `https://${inputUrl}`;
       }
     }
-    
+
     setState(prev => ({ ...prev, url: formattedUrl }));
   };
 
   const handleLoadUrl = () => {
     if (!state.url) return;
     // Apply protocol fix before loading if the user typed it manually
-    handleUrlChange(state.url); 
-    
+    handleUrlChange(state.url);
+
     // We use a timeout to ensure state update for URL normalization happens before setting activeUrl
     // Or simpler: calculate standard URL here
     let finalUrl = state.url;
@@ -97,7 +98,7 @@ const App: React.FC = () => {
   };
 
   const handleToggleFrame = () => setState(prev => ({ ...prev, showFrames: !prev.showFrames }));
-  
+
   const handleToggleCategory = (cat: 'mobile' | 'tablet' | 'desktop') => {
     setState(prev => ({
       ...prev,
@@ -116,7 +117,7 @@ const App: React.FC = () => {
   const visibleDevices = DEVICES.filter(d => state.visibleCategories[d.category]);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col font-sans selection:bg-blue-500/30">
       <Toolbar
         state={state}
         onUrlChange={handleUrlChange}
@@ -128,8 +129,8 @@ const App: React.FC = () => {
         onReload={handleReload}
       />
 
-      <main className="flex-1 mt-16 p-6 overflow-auto">
-        <div className="flex flex-wrap items-start justify-center gap-8">
+      <main className="flex-1 mt-16 p-8 overflow-auto scroll-smooth">
+        <div className="flex flex-wrap items-start justify-center gap-12 pb-20">
           {state.activeUrl ? (
             visibleDevices.map(device => (
               <DeviceCard
@@ -143,16 +144,28 @@ const App: React.FC = () => {
               />
             ))
           ) : (
-            <div className="mt-20 text-center">
-              <h2 className="text-2xl font-bold text-gray-300 mb-4">Ready to test</h2>
-              <p className="text-gray-500">Enter a URL above and click Go to start the preview.</p>
-              <div className="mt-8 p-4 bg-gray-800 rounded-lg max-w-md mx-auto border border-gray-700">
-                <p className="text-yellow-500 text-sm font-semibold mb-2">Important Note:</p>
-                <p className="text-gray-400 text-xs">
-                  This extension modifies request headers to bypass <code className="text-gray-300">X-Frame-Options</code> restrictions. 
-                  However, some sophisticated websites (like GitHub or Google) may still block embedding via JavaScript checks 
-                  (frame-busting scripts) or strict CSP settings that cannot be easily overridden without breaking the site.
-                </p>
+            <div className="mt-20 text-center max-w-2xl mx-auto animate-fade-in-up">
+              <div className="mb-6 inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20 shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)]">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              </div>
+              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-6 tracking-tight">
+                Design for Every Device
+              </h1>
+              <p className="text-gray-400 text-lg mb-10 leading-relaxed">
+                Enter a URL above to instantly preview your website across multiple mobile, tablet, and desktop viewports simultaneously.
+              </p>
+
+              <div className="mt-8 p-6 bg-yellow-500/5 rounded-xl border border-yellow-500/10 text-left max-w-xl mx-auto backdrop-blur-sm">
+                <div className="flex items-start gap-4">
+                  <AlertTriangle className="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-yellow-500 font-semibold mb-1">Developer Note</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      Extension mode strips <code className="text-yellow-500 bg-yellow-500/10 px-1 py-0.5 rounded text-xs">X-Frame-Options</code> headers to allow embedding.
+                      However, some sites (like GitHub) use advanced frame-busting scripts that may still prevent loading.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
